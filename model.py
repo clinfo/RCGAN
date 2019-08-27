@@ -1,4 +1,5 @@
 import numpy as np
+from memory_profiler import profile
 from keras.layers import Input, Dense, CuDNNLSTM
 from keras.layers import concatenate, Flatten, Embedding, RepeatVector
 from keras.layers.recurrent import LSTM
@@ -181,7 +182,7 @@ class RCGAN():
         model.add(TimeDistributed(Dense(1)))
 
         # define tenor variable
-        x = Input(batch_shape=(self.batch_size, self.seq_length, 1))
+        x = Input(batch_shape=(self.batch_size, self.seq_length, self.input_dim))
         c = Input(batch_shape=(self.batch_size, 1), dtype='int32')
         c_emb = Flatten()(Embedding(self.num_classes, self.embed_dim)(c))
         c_emb = RepeatVector(self.seq_length)(c_emb)
@@ -198,7 +199,7 @@ class RCGAN():
         model.trainable = trainable
         for layer in model.layers:
             layer.trainable = trainable
-
+    @profile
     def train(self, n_epochs, X_train, y_train, X_eval, y_eval):
 
         config = tf.ConfigProto()
@@ -263,7 +264,7 @@ class RCGAN():
                 if (epoch + 1) >= 10 and best_mmd2 - mmd2 > 0.005:
                     if self.save_model:
                         model_json_str = self.generator.to_json()
-                        open('models/' + '_generator_model.json', 'w') \
+                        open('models/' + 'generator_model.json', 'w') \
                             .write(model_json_str)
                         self.generator.save_weights(
                             'models/' + 'generator_weight.h5')

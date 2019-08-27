@@ -217,6 +217,7 @@ def tf_initialize(x_eval, seq_length, input_dim):
     n_sigmas = 2
     sigma = tf.get_variable(name='sigma', shape=n_sigmas, initializer=tf.constant_initializer(
         value=np.power(heuristic_sigma_training, np.linspace(-1, 3, num=n_sigmas))))
+    
     mmd2, that = mix_rbf_mmd2_and_ratio(eval_real_PH, eval_sample_PH, sigma)
     with tf.variable_scope("SIGMA_optimizer"):
         # sigma_solver = tf.train.RMSPropOptimizer(learning_rate=0.05).minimize(-that, var_list=[sigma])
@@ -242,12 +243,15 @@ def sigma_optimization(eval_real, eval_sample, sigma, dic_tf_sigma, that, sess):
     eval_eval_sample = eval_sample[:eval_eval_size]
     eval_test_sample = eval_sample[eval_eval_size:]
     
-    # print(eval_test_real.shape)
+    eval_test_real_PH = tf.placeholder(tf.float32, [eval_test_real.shape[0], eval_test_real.shape[1], eval_test_real.shape[2]])
+    eval_test_sample_PH = tf.placeholder(tf.float32, [eval_test_sample.shape[0], eval_test_sample.shape[1], eval_test_sample.shape[2]])
 
+    # print(eval_test_real.shape)
     sess.run(tf.variables_initializer(dic_tf_sigma['sigma_opt_vars']))
     sigma_iter = 0
     that_change = sigma_opt_thresh * 2
     old_that = 0
+    
     while that_change > sigma_opt_thresh and sigma_iter < sigma_opt_iter:
         new_sigma, that_np, _ = sess.run([sigma, that,
                                           dic_tf_sigma['sigma_solver']],
@@ -256,11 +260,17 @@ def sigma_optimization(eval_real, eval_sample, sigma, dic_tf_sigma, that, sess):
         that_change = np.abs(that_np - old_that)
         old_that = that_np
         sigma_iter += 1
+        print('new:{}'.format(new_sigma))
+    
     opt_sigma = sess.run(sigma)
-    mmd2, that_np = sess.run(mix_rbf_mmd2_and_ratio(eval_test_real,
-                                                    eval_test_sample,
-                                                    biased=False,
-                                                    sigmas=sigma))
+
+    tmp_mmd2, tmp_that_np = mix_rbf_mmd2_and_ratio(eval_test_real_PH, eval_test_sample_PH, biased = False, sigmas=sigma)    
+    mmd2, that_np = sess.run(
+        [tmp_mmd2, tmp_that_np],
+        feed_dict = {
+            eval_test_real_PH: eval_test_real,
+            eval_test_sample_PH: eval_test_sample,
+        }
+    )
+    
     return mmd2, that_np
-
-

@@ -2,13 +2,20 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from model import RCGAN
 import os
+import argparse
 
 FILE_NAME = 'inputs/sin_wave.npz'
+# FILE_NAME = 'inputs/mnist1.npz'
 SEED = 12345
 
 def main():
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-inputs', default=FILE_NAME)
+    args = parser.parse_args()
+    
     # load data
-    ndarr = np.load(FILE_NAME)
+    ndarr = np.load(args.inputs)
     X_train, X_eval, y_train, y_eval = train_test_split(ndarr['x'],
                                                         ndarr['y'],
                                                         test_size=0.1,
@@ -23,11 +30,11 @@ def main():
     args = {}
     args['seq_length'] = X_train.shape[1]
     args['input_dim'] = X_train.shape[2]
-    args['latent_dim'] = 50
-    args['hidden_dim'] = 100
+    args['latent_dim'] = 500
+    args['hidden_dim'] = 500
     args['embed_dim'] = 10
-    args['n_epochs'] = 30
-    args['batch_size'] = 32
+    args['n_epochs'] = 100
+    args['batch_size'] = 64
     args['num_classes'] = len(np.unique(y_train))
     args['save_model'] = True
     args['instance_noise'] = False
@@ -52,5 +59,5 @@ def main():
 
 if __name__ == '__main__':
     # choose GPU devise
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     main()

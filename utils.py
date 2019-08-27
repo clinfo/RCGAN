@@ -45,8 +45,8 @@ def draw_rotmnist(img, labels, epoch):
     plt.figure(figsize=(12, 8))
 
     show_num = 1
-    for i in range(10):
-        for j in range(5):
+    for i in range(5):
+        for j in range(10):
             plt.subplot(5, 10, show_num)
             plt.imshow(img[i][j].reshape(28, 28), cmap='gray')
             plt.title(labels[i])
