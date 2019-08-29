@@ -21,7 +21,7 @@ G_WEIGHT_FILE_NAME = 'models/generator_weight.h5'  # generater weight
 D_MODEL_FILE_NAME = 'models/discriminator_model.json'  # discriminator model
 D_WEIGHT_FILE_NAME = 'models/discriminator_weight.h5'  # discriminator weight
 # hyper parameter for generating sampels
-batch_size = 32  # batch size (adjust this variable to your model) 
+batch_size = 64  # batch size (adjust this variable to your model) 
 input_dim = 784  # input dimension (adjust this variable to your model) 
 seq_length = 10  # sequence length (adjust this variable to your model) 
 latent_dim = 500  # latent dimension for gan (adjust this variable to your model) 
@@ -72,7 +72,10 @@ def generate_samples():
     for i in range(0, gen_iter):
         noise = np.random.normal(0, 1, (batch_size, seq_length, latent_dim))
         sample_c = np.random.randint(0, num_classes, batch_size)
-        gen_x.extend(generator.predict([noise, sample_c]))
+        if utils.gpu_is_available():
+            gen_x.extend(generator.predict_on_batch([noise, sample_c]))
+        else:
+            gen_x.extend(generator.predict([noise, sample_c]))
         gen_y.extend(sample_c)
     gen_x_arr = np.array(gen_x)
     gen_y_arr = np.array(gen_y)
@@ -133,8 +136,8 @@ if __name__ == '__main__':
         else:
             plotting()
     elif plot == 'mnist':
+        utils.draw_rotmnist(gen_x, gen_y, 0)
         
-    
     if os.path.isdir('outputs') is not True:
         os.mkdir('outputs')
     

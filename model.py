@@ -248,8 +248,11 @@ class RCGAN():
                         self.batch_size, self.seq_length, self.latent_dim))
                     sample_c = np.random.randint(0, self.num_classes,
                                                  self.batch_size)
-                    eval_gx.extend(self.generator.predict([noise, sample_c]))
-
+                    if self.use_gpu:
+                        eval_gx.extend(self.generator.predict_on_batch([noise, sample_c]))
+                    else:
+                        eval_gx.extend(self.generator.predict([noise, sample_c]))
+                    
                 mmd2, that_np = self.my_mmd.calc_mmd(eval_x, eval_gx)
 
                 # Plot the progress
@@ -261,7 +264,7 @@ class RCGAN():
                                mmd2))
                 
                 # save model and generate data based on current mmd2 score
-                if (epoch + 1) >= 10 and best_mmd2 - mmd2 > 0.005:
+                if (epoch + 1) >= 10: #and best_mmd2 - mmd2 > 0.005:
                     if self.save_model:
                         model_json_str = self.generator.to_json()
                         open('models/' + 'generator_model.json', 'w') \
