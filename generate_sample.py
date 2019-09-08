@@ -27,8 +27,8 @@ seq_length = 10  # sequence length (adjust this variable to your model)
 latent_dim = 500  # latent dimension for gan (adjust this variable to your model) 
 num_classes = 10  # a number of classes (adjust this variable to your model) 
 num_samples = 500  # a number of generated samples
-eval_mmd = True  # evaluation of mmd score
-plot = False  # cannot plot without sin wave
+eval_mmd = False  # evaluation of mmd score
+plot = 'mnist'  # cannot plot without sin wave
 show_samples = 15  # a number of plotting samples
 ################################################################
 
@@ -136,13 +136,13 @@ if __name__ == '__main__':
         else:
             plotting()
     elif plot == 'mnist':
-        utils.draw_rotmnist(gen_x, gen_y, 0)
+        utils.draw_rotmnist(gen_x, gen_y, 'best')
         
     if os.path.isdir('outputs') is not True:
         os.mkdir('outputs')
     
     np.savez(OUTPUT_FILE_NAME, x=gen_x, y=gen_y)
-    
+
     print('generete {} samples successfully !'.format(num_samples))
     print('samples are saved to {}'.format(OUTPUT_FILE_NAME))
         
