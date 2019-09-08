@@ -1,5 +1,4 @@
 import numpy as np
-from memory_profiler import profile
 from keras.layers import Input, Dense, CuDNNLSTM
 from keras.layers import concatenate, Flatten, Embedding, RepeatVector
 from keras.layers.recurrent import LSTM
@@ -199,7 +198,7 @@ class RCGAN():
         model.trainable = trainable
         for layer in model.layers:
             layer.trainable = trainable
-    @profile
+
     def train(self, n_epochs, X_train, y_train, X_eval, y_eval):
 
         config = tf.ConfigProto()

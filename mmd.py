@@ -260,7 +260,6 @@ def sigma_optimization(eval_real, eval_sample, sigma, dic_tf_sigma, that, sess):
         that_change = np.abs(that_np - old_that)
         old_that = that_np
         sigma_iter += 1
-        print('new:{}'.format(new_sigma))
     
     opt_sigma = sess.run(sigma)
 
