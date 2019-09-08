@@ -1,4 +1,4 @@
-from sklearn.datasets import fetch_mldata
+from sklearn.datasets import fetch_openml
 import numpy as np
 import cv2
 import os
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from numpy.random import *
 
 print("fetch_mldata")
-mnist = fetch_mldata('MNIST original', data_home="data")
+mnist = fetch_openml('mnist_784', data_home="data")
 
 # 
 num_data=-1
@@ -20,8 +20,10 @@ random_steps=True
 
 target_labels=list(range(0,10))
 rot_velocity=10.0
-flip_noise_rate=0.2
-missing_rate=0.1
+seq_noise_size = 0
+seq_noise_len = 0
+flip_noise_rate=0
+missing_rate=0
 save_missing_mask=True
 generate_interval=True
 interval_step=2
@@ -118,7 +120,7 @@ def build_sequence(img,target_label):
 	angle_seq=np.array(angle_seq)
 	
 	# adding noises
-	seq=add_square(seq)
+	seq=add_square(seq, seq_noise_size, seq_noise_len)
 	seq,_=add_flip_noise(seq,flip_noise_rate)
 	seq,mask=add_zero_noise(seq,missing_rate)
 	seq=seq.reshape(steps,28*28)
@@ -134,15 +136,15 @@ def build_sequence(img,target_label):
 os.makedirs(save_path,exist_ok=True)
 #p = np.random.random_integers(0, len(mnist.data), 1)
 
-mnist_data = mnist.data
-mnist_target = mnist.target
+mnist_data = mnist['data']
+mnist_target = mnist['target']
 
-mnist_data = mnist_data[mnist_target < 5]
-mnist_target = mnist_target[mnist_target < 5]
+mnist_data = mnist_data[mnist_target.astype('int') < 5]
+mnist_target = mnist_target[mnist_target.astype('int') < 5]
 
 idx=list(range(len(mnist_data)))
 np.random.shuffle(idx)
-idx = idx[:3001]
+#idx = idx[:3001]
 
 if num_data>0:
 	idx = idx[0:num_data]
