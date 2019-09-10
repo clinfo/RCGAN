@@ -5,8 +5,28 @@ import os
 import argparse
 
 FILE_NAME = 'inputs/sin_wave.npz'
-# FILE_NAME = 'inputs/mnist1.npz'
+#FILE_NAME = 'inputs/mnist1.npz'
 SEED = 12345
+
+def seq_mnist_normalize(data):
+    """
+    Normalize for rot_mnist
+    """
+    def MaxMinNorm(data):
+        return ( ( (data - data.min()) / (data.max() - data.min()) ) * 2 - 1 ).tolist()
+
+    test = []
+    for data in data:
+        test.append( 
+            list(
+                map(
+                    lambda seq_data: MaxMinNorm(seq_data), 
+                    data
+                )
+            )
+        )
+    
+    return np.array(test)
 
 def main():
     
@@ -24,6 +44,10 @@ def main():
     assert X_train.ndim == 3, 'x shape is expected 3 dims, but {} shapes'.format(
         X_train.ndim)
 
+    if args.inputs == 'inputs/mnist1.npz':
+        X_train = seq_mnist_normalize(X_train) 
+        X_eval = seq_mnist_normalize(X_eval)
+    
     print('train x shape:', X_train.shape)
 
     # hyper parameter for training
@@ -39,7 +63,7 @@ def main():
     args['save_model'] = True
     args['instance_noise'] = False
     args['dp_sgd'] = True
-    args['sigma'] = 4.0
+    args['sigma'] = 0.1
     args['l2norm_bound'] = 0.1
     args['learning_rate'] = 0.1
     args['total_examples'] = X_train.shape[0]
