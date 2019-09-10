@@ -5,7 +5,7 @@ import numpy as np
 import json
 
 FILNAME = 'mnist1.npz'
-SAMPLES = 3000
+SAMPLES = 5068
 MAX_SEQ = 10
 INPUT_DIM = 784
 
