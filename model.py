@@ -121,15 +121,13 @@ class RCGAN():
         """
 
         d_loss_real = K.mean(K.binary_crossentropy(output=d_logit_real,
-                                                   target=K.ones_like(
-                                                       d_logit_real),
-                                                   from_logits=True))
+                                                   target=K.ones_like(d_logit_real),
+                                                   from_logits=True), axis = 1)
         d_loss_fake = K.mean(K.binary_crossentropy(output=d_logit_fake,
-                                                   target=K.zeros_like(
-                                                       d_logit_fake),
-                                                   from_logits=True))
+                                                   target=K.zeros_like(d_logit_fake),
+                                                   from_logits=True), axis = 1)
 
-        d_loss = d_loss_real + d_loss_fake
+        d_loss = K.mean(d_loss_real + d_loss_fake)
 
         g_loss = K.mean(K.binary_crossentropy(output=d_logit_fake,
                                               target=K.ones_like(d_logit_fake),
@@ -176,8 +174,7 @@ class RCGAN():
         else:
             model.add(LSTM(units=self.hidden_dim,
                                 return_sequences=True))
-        # model.add(TimeDistributed(Dense(1, activation='sigmoid')))
-        # pass logit value to loss function
+        # model.add(TimeDistributed(Dense(1, activation='sigmoid'))) pass logit value to loss function
         model.add(TimeDistributed(Dense(1)))
 
         # define tenor variable
@@ -277,6 +274,6 @@ class RCGAN():
                             'models/' + 'discriminator_weight.h5')
                         print('best model is saved !!')
 
-                        best_mmd2 = mmd2
+                        best_mmd2 = mmd2                        
                 # Plot generated samples from current generator
                 # sin_plot(sample_gx[:8], sample_c[:8])
