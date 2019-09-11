@@ -57,6 +57,8 @@ class RCGAN():
         self.num_classes = kwargs["num_classes"]
         self.save_model = kwargs["save_model"]
         self.instance_noise = kwargs["instance_noise"]
+        self.oneside_smooth = kwargs["oneside_smooth"]
+        self.label_flipping = kwargs["label_flipping"]
         self.dp_sgd = kwargs['dp_sgd']
         self.sigma = kwargs['sigma']
         self.l2norm_bound = kwargs['l2norm_bound']
@@ -120,11 +122,31 @@ class RCGAN():
         define loss function
         """
 
+        d_target_real = K.ones_like(d_logit_real)
+        d_target_fake = K.zeros_like(d_logit_fake)
+
+        if self.label_flipping > 0:
+            # some idx replace to zeros
+            flip_val = K.random_binomial( K.get_variable_shape(d_logit_real), p = self.label_flipping )
+            d_target_real -= flip_val
+            # some idx replace t0 ones
+            flip_val = K.random_binomial( K.get_variable_shape(d_logit_fake), p = self.label_flipping )
+            d_target_fake += flip_val
+
+        #if self.oneside_smooth is True:
+        if self.oneside_smooth:
+            # some idx replace 0.9-1.0
+            smooth_val = K.random_uniform_variable(K.get_variable_shape(d_logit_real), low = 0.9, high = 0.99 )
+            d_target_real *= smooth_val
+            # some idx replace 0.9-1.0 (When label_flipping = 0, no processing )
+            smooth_val = K.random_uniform_variable(K.get_variable_shape(d_logit_fake), low = 0.9, high = 0.99 )
+            d_target_fake *= smooth_val
+
         d_loss_real = K.mean(K.binary_crossentropy(output=d_logit_real,
-                                                   target=K.ones_like(d_logit_real),
+                                                   target=d_target_real,
                                                    from_logits=True), axis = 1)
         d_loss_fake = K.mean(K.binary_crossentropy(output=d_logit_fake,
-                                                   target=K.zeros_like(d_logit_fake),
+                                                   target=d_target_fake,
                                                    from_logits=True), axis = 1)
 
         d_loss = K.mean(d_loss_real + d_loss_fake)

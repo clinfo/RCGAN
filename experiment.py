@@ -15,9 +15,9 @@ def seq_mnist_normalize(data):
     def MaxMinNorm(data):
         return ( ( (data - data.min()) / (data.max() - data.min()) ) * 2 - 1 ).tolist()
 
-    test = []
+    ret_rot_data = []
     for data in data:
-        test.append( 
+        ret_rot_data.append( 
             list(
                 map(
                     lambda seq_data: MaxMinNorm(seq_data), 
@@ -25,8 +25,8 @@ def seq_mnist_normalize(data):
                 )
             )
         )
-    
-    return np.array(test)
+
+    return np.array(ret_rot_data)
 
 def main():
     
@@ -62,6 +62,8 @@ def main():
     args['num_classes'] = len(np.unique(y_train))
     args['save_model'] = True
     args['instance_noise'] = False
+    args['oneside_smooth'] = True
+    args['label_flipping'] = 0.05
     args['dp_sgd'] = True
     args['sigma'] = 0.1
     args['l2norm_bound'] = 0.1
