@@ -28,6 +28,21 @@ def seq_mnist_normalize(data):
 
     return np.array(ret_rot_data)
 
+def seq_bp_normalize(data):
+    """
+    Normalize for rot_mnist
+    """
+    from sklearn.preprocessing import MinMaxScaler
+    mms = MinMaxScaler()
+    tmp = data.reshape( data.shape[0], data.shape[1] * data.shape[2] )
+    tmp = mms.fit_transform(tmp) * 2 - 1
+    print("Save scale")
+    np.savez('bp_data_mms.npz',data_min = mms.data_min_, data_max = mms.data_max_)
+    
+    tmp = tmp.reshape( data.shape[0], data.shape[1], data.shape[2] )
+    
+    return tmp
+
 def main():
     
     parser = argparse.ArgumentParser()
@@ -47,6 +62,9 @@ def main():
     if args.inputs == 'inputs/mnist1.npz':
         X_train = seq_mnist_normalize(X_train) 
         X_eval = seq_mnist_normalize(X_eval)
+    elif args.inputs == 'inputs/bp_data.npz':
+        X_eval = seq_bp_normalize(X_eval)
+        X_train = seq_bp_normalize(X_train) 
     
     print('train x shape:', X_train.shape)
 

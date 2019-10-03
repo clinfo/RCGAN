@@ -170,6 +170,7 @@ class RCGAN():
                                 return_sequences=True))
 
         model.add(TimeDistributed(Dense(self.input_dim, activation='tanh')))
+        # model.add(TimeDistributed(Dense(self.input_dim, activation='linear')))
 
         # define tenor variable
         z = Input(
@@ -285,15 +286,15 @@ class RCGAN():
                 if (epoch + 1) >= 10: #and best_mmd2 - mmd2 > 0.005:
                     if self.save_model:
                         model_json_str = self.generator.to_json()
-                        open('models/' + 'generator_model.json', 'w') \
+                        open('models/' + 'generator_model_bp.json', 'w') \
                             .write(model_json_str)
                         self.generator.save_weights(
-                            'models/' + 'generator_weight.h5')
+                            'models/' + 'generator_weight_bp.h5')
                         model_json_str = self.discriminator.to_json()
-                        open('models/' + 'discriminator_model.json', 'w') \
+                        open('models/' + 'discriminator_model_bp.json', 'w') \
                             .write(model_json_str)
                         self.discriminator.save_weights(
-                            'models/' + 'discriminator_weight.h5')
+                            'models/' + 'discriminator_weight_bp.h5')
                         print('best model is saved !!')
 
                         best_mmd2 = mmd2                        
