@@ -62,7 +62,7 @@ def main():
     if args.inputs == 'inputs/mnist1.npz':
         X_train = seq_mnist_normalize(X_train) 
         X_eval = seq_mnist_normalize(X_eval)
-    elif args.inputs == 'inputs/bp_data.npz':
+    elif (args.inputs == 'inputs/bp_data.npz' or args.inputs == 'inputs/bp_data_84.npz'):
         X_eval = seq_bp_normalize(X_eval)
         X_train = seq_bp_normalize(X_train) 
     
